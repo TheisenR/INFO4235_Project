@@ -1,0 +1,22 @@
+{
+  "name": "student-marketplace",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "meteor run",
+    "build": "meteor build ../build"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0"
+  },
+  "allowScripts": {
+    "esbuild@0.21.5": true,
+    "bcrypt@6.0.0": true
+  }
+}

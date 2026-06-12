@@ -1,0 +1,14 @@
+meteor-base
+mobile-experience
+mongo
+reactive-var
+tracker
+standard-minifier-css
+standard-minifier-js
+es5-shim
+ecmascript
+typescript
+shell-server
+react-fast-refresh
+accounts-password
+react-meteor-data
