@@ -2,12 +2,13 @@
   "name": "student-marketplace",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
   "scripts": {
     "start": "meteor run",
     "build": "meteor build ../build"
   },
   "dependencies": {
+    "@babel/runtime": "^7.29.7",
+    "meteor-node-stubs": "^1.2.27",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
