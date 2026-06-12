@@ -1,15 +1,21 @@
-import React from 'react';
-import { Meteor } from 'meteor/meteor';
-import { useTracker } from 'meteor/react-meteor-data';
+import React, { useState } from 'react';
 import { LoginPage } from './LoginPage.jsx';
 import { HomePage } from './HomePage.jsx';
 
 export const App = () => {
-  const currentUser = useTracker(() => Meteor.user());
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const handleLogin = (user) => {
+    setCurrentUser(user);
+  };
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+  };
 
   if (!currentUser) {
-    return <LoginPage />;
+    return <LoginPage onLogin={handleLogin} />;
   }
 
-  return <HomePage user={currentUser} />;
+  return <HomePage user={currentUser} onLogout={handleLogout} />;
 };

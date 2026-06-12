@@ -1,43 +1,57 @@
 import { Meteor } from 'meteor/meteor';
+import { Mongo } from 'meteor/mongo';
 import { Accounts } from 'meteor/accounts-base';
-import 'meteor/accounts-password';
 import { check } from 'meteor/check';
+
+const Users = new Mongo.Collection('Users');
 
 Meteor.startup(() => {
   console.log('Meteor server started');
-
-  const defaultEmail = 'john@students.kpu.ca';
-  const defaultPassword = 'Password123!';
-
-  const user = Accounts.findUserByEmail(defaultEmail);
-  if (!user) {
-    const userId = Accounts.createUser({
-      email: defaultEmail,
-      password: defaultPassword,
-      profile: {
-        name: 'Test Student'
-      }
-    });
-    console.log(`Created default login user: ${defaultEmail} (${userId})`);
-  } else if (typeof Accounts.setPassword === 'function') {
-    Accounts.setPassword(user._id, defaultPassword);
-    console.log(`Reset password for existing user: ${defaultEmail}`);
-  }
+  console.log('MONGO_URL=', process.env.MONGO_URL || '<not set>');
 });
 
 Meteor.methods({
-  'users.login'(email, password) {
+  async 'customLogin'(email, password) {
     check(email, String);
     check(password, String);
 
-    const user = Accounts.findUserByEmail(email);
+    const user = await Users.findOneAsync({
+      $or: [
+        { 'emails.address': email },
+        { email },
+        { username: email }
+      ]
+    });
+
     if (!user) {
       throw new Meteor.Error('not-found', 'No account found with that email address.');
     }
 
-    const valid = Accounts._checkPassword(user, password);
+    let valid = { error: true };
+    if (user.services?.password) {
+      valid = Accounts._checkPassword(user, password);
+    }
+
     if (!valid.error) {
-      return { success: true, email };
+      return {
+        success: true,
+        user: {
+          _id: user._id,
+          emails: user.emails,
+          username: user.username
+        }
+      };
+    }
+
+    if (user.password && user.password === password) {
+      return {
+        success: true,
+        user: {
+          _id: user._id,
+          emails: user.emails,
+          username: user.username
+        }
+      };
     }
 
     throw new Meteor.Error('invalid', 'Invalid email or password');

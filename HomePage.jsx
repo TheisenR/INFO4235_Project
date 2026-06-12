@@ -1,8 +1,6 @@
 import React from 'react';
 
-import { Meteor } from 'meteor/meteor';
-
-export const HomePage = ({ user }) => {
+export const HomePage = ({ user, onLogout }) => {
   const listings = [
     { id: 1, title: "Textbook: Intro to Cloud Computing", price: "$45", category: "Books" },
     { id: 2, title: "PlayStation 5 Controller - Mint Condition", price: "$50", category: "Electronics" },
@@ -10,7 +8,9 @@ export const HomePage = ({ user }) => {
   ];
 
   const handleLogout = () => {
-    Meteor.logout();
+    if (typeof onLogout === 'function') {
+      onLogout();
+    }
   };
 
   const email = user?.emails?.[0]?.address || user?.username || 'Student';

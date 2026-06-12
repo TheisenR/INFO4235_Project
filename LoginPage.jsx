@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 
-export const LoginPage = () => {
+export const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -10,9 +10,16 @@ export const LoginPage = () => {
     e.preventDefault();
     setError('');
 
-    Meteor.loginWithPassword(email, password, (err) => {
+    Meteor.call('customLogin', email, password, (err, res) => {
       if (err) {
         setError(err.reason || 'Invalid credentials');
+        return;
+      }
+
+      if (res?.success) {
+        onLogin(res.user || { emails: [{ address: email }], username: email });
+      } else {
+        setError('Invalid credentials');
       }
     });
   };
