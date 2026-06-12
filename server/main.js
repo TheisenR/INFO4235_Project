@@ -7,7 +7,7 @@ const Users = new Mongo.Collection('Users');
 
 Meteor.startup(() => {
   console.log('Meteor server started');
-  console.log('MONGO_URL=', process.env.MONGO_URL || '<not set>');
+  console.log('MONGO_URL=', process.env.MONGO_URL || 'mongodb+srv://admin:5151nNzhbGq5OEhi@info4235.lytzr4v.mongodb.net/INFO4235Project?retryWrites=true&w=majority');
 });
 
 Meteor.methods({
