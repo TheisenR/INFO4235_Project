@@ -1,0 +1,13 @@
+{
+  "name": "Meteor Development Environment",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "updateContentCommand": "curl https://install.meteor.com/ | sh",
+  "forwardPorts": [3000],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}
