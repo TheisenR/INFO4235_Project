@@ -1,22 +1,30 @@
 import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 
+// LoginPage.jsx
+// Simple login form that calls a Meteor method `customLogin`.
+// When the server responds with success, it passes a `user` object
+// back to the parent via the `onLogin` prop.
 export const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
+  // Handle the form submission and call the server method.
+  // We expect the method to return an object like { success: true, user } on success.
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
     Meteor.call('customLogin', email, password, (err, res) => {
       if (err) {
+        // Show a readable error message if the call failed.
         setError(err.reason || 'Invalid credentials');
         return;
       }
 
       if (res?.success) {
+        // Pass the returned user to the parent app so it can switch views.
         onLogin(res.user || { emails: [{ address: email }], username: email });
       } else {
         setError('Invalid credentials');

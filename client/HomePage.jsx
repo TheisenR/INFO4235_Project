@@ -1,18 +1,29 @@
 import React from 'react';
 
+// HomePage.jsx
+// Displays a simple list of marketplace listings and a top nav.
+// Props:
+// - `user`: minimal user info (for display)
+// - `onLogout`: callback to sign the user out
 export const HomePage = ({ user, onLogout }) => {
+  // Temporary static listings
+  // In the complete app these would be fetched from the DB.
   const listings = [
     { id: 1, title: "Textbook: Intro to Cloud Computing", price: "$45", category: "Books" },
     { id: 2, title: "PlayStation 5 Controller - Mint Condition", price: "$50", category: "Electronics" },
     { id: 3, title: "Desk Lamp (LED with USB port)", price: "$15", category: "Home Goods" }
   ];
 
+  // Wrapper that calls the provided `onLogout` callback
+  // if it was passed by the parent component.
   const handleLogout = () => {
     if (typeof onLogout === 'function') {
       onLogout();
     }
   };
 
+  // Pick a friendly label to display in the navbar.
+  // Prefer the user's first email address, then username, otherwise a default.
   const email = user?.emails?.[0]?.address || user?.username || 'Student';
 
   return (
