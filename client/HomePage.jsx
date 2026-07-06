@@ -1,78 +1,266 @@
-import React from 'react';
+import React, { useState } from 'react';
+import './styles/HomePage.css';
 
 // HomePage.jsx
-// Displays a simple list of marketplace listings and a top nav.
-// Props:
-// - `user`: minimal user info (for display)
-// - `onLogout`: callback to sign the user out
+// Main marketplace page displayed after a successful login.
+// Allows users to browse, search, and view marketplace listings.
+
 export const HomePage = ({ user, onLogout }) => {
-  // Temporary static listings
-  // In the complete app these would be fetched from the DB.
-  const listings = [
-    { id: 1, title: "Textbook: Intro to Cloud Computing", price: "$45", category: "Books" },
-    { id: 2, title: "PlayStation 5 Controller - Mint Condition", price: "$50", category: "Electronics" },
-    { id: 3, title: "Desk Lamp (LED with USB port)", price: "$15", category: "Home Goods" }
-  ];
 
-  // Wrapper that calls the provided `onLogout` callback
-  // if it was passed by the parent component.
-  const handleLogout = () => {
-    if (typeof onLogout === 'function') {
-      onLogout();
-    }
-  };
+    // Temporary marketplace listings used for development.
+    // These records will later be replaced with data from MongoDB.
 
-  // Pick a friendly label to display in the navbar.
-  // Prefer the user's first email address, then username, otherwise a default.
-  const email = user?.emails?.[0]?.address || user?.username || 'Student';
+    const listings = [
+        {
+            id: 1,
+            title: "Textbook: Intro to Cloud Computing",
+            price: "$45",
+            category: "Books",
+            seller: "William",
+            description:
+                "A well-maintained cloud computing textbook with minimal highlighting."
+        },
+        {
+            id: 2,
+            title: "PlayStation 5 Controller - Mint Condition",
+            price: "$50",
+            category: "Electronics",
+            seller: "Alex",
+            description:
+                "Official PS5 controller in excellent condition with no visible damage."
+        },
+        {
+            id: 3,
+            title: "Desk Lamp (LED with USB Port)",
+            price: "$15",
+            category: "Home Goods",
+            seller: "Emily",
+            description:
+                "Modern LED desk lamp with adjustable brightness and built-in USB charging port."
+        }
+    ];
 
-  return (
-    <div style={styles.container}>
-      <nav style={styles.navbar}>
-        <h1 style={styles.logo}>Student Marketplace</h1>
-        <div style={styles.navActions}>
-          <span style={styles.welcome}>Welcome, <strong>{email}</strong></span>
-          <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
-        </div>
-      </nav>
+    // Stores the current search keyword entered by the user.
+    const [searchTerm, setSearchTerm] = useState('');
 
-      {/* Main Content Area */}
-      <main style={styles.main}>
-        <div style={styles.headerArea}>
-          <h2>Current Marketplace Listings</h2>
-          <button style={styles.createBtn}>+ New Listing</button>
-        </div>
+    // Stores the currently selected category.
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
-        {/* Listings Grid */}
-        <div style={styles.grid}>
-          {listings.map(item => (
-            <div key={item.id} style={styles.card}>
-              <div style={styles.categoryBadge}>{item.category}</div>
-              <h3 style={styles.cardTitle}>{item.title}</h3>
-              <p style={styles.cardPrice}>{item.price}</p>
-              <button style={styles.viewBtn}>View Details</button>
+    // Stores the selected product for the detail dialog.
+    const [selectedProduct, setSelectedProduct] = useState(null);
+
+    // Signs the current user out by calling the callback
+    // provided by the parent component.
+    const handleLogout = () => {
+        if (typeof onLogout === 'function') {
+            onLogout();
+        }
+    };
+
+    // Displays the user's email address if available.
+    // Falls back to the username or a default label.
+    const email =
+        user?.emails?.[0]?.address ||
+        user?.username ||
+        'Student';
+
+    // Filters marketplace listings using the current search keyword
+    // and selected category.
+    const filteredListings = listings.filter((item) => {
+
+        // Check whether the listing title contains the search keyword.
+        const matchesSearch =
+            item.title.toLowerCase().includes(searchTerm.toLowerCase());
+
+        // Check whether the selected category matches the listing category.
+        const matchesCategory =
+            selectedCategory === 'All' ||
+            item.category === selectedCategory;
+
+        // Display the listing only if both conditions are satisfied.
+        return matchesSearch && matchesCategory;
+    });
+
+    // Available product categories displayed in the filter menu.
+    const categories = [
+        'All',
+        'Books',
+        'Electronics',
+        'Home Goods'
+    ];
+
+    return (
+
+        // Container
+        <div className="container">
+
+            {/* Navigation Bar */}
+            <nav>
+                <h1 className="logo">
+                    Student Marketplace
+                </h1>
+
+                <div className="nav-actions">
+
+                    <span className="welcome">
+                        Welcome, <strong>{email}</strong>
+                    </span>
+
+                    <button
+                        className="logout-button"
+                        onClick={handleLogout}
+                    >
+                        Logout
+                    </button>
+
+                </div>
+            </nav>
+
+            {/* Main Content */}
+            <main>
+
+                {/* Search */}
+                <section className="search-section">
+
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="Search for products..."
+                        value={searchTerm}
+                        onChange={(event) =>
+                            setSearchTerm(event.target.value)
+                        }
+                    />
+
+                </section>
+
+                {/* Header */}
+                <section className="header-section">
+
+                    <h2 className="page-title">
+                        Current Marketplace Listings
+                    </h2>
+
+                    <button className="create-button">
+                        + New Listing
+                    </button>
+
+                </section>
+
+                {/* Category */}
+                <section className="filter-section">
+
+                    <label
+                        className="filter-label"
+                        htmlFor="category"
+                    >
+                        Category
+                    </label>
+
+                    <select
+                        id="category"
+                        className="category-select"
+                        value={selectedCategory}
+                        onChange={(event) =>
+                            setSelectedCategory(event.target.value)
+                        }
+                    >
+
+                        {categories.map((category) => (
+
+                            <option
+                                key={category}
+                                value={category}
+                            >
+                                {category}
+                            </option>
+
+                        ))}
+
+                    </select>
+
+                </section>
+
+                {/* Listings */}
+                <section>
+
+                    {filteredListings.length > 0 ? (
+
+                        filteredListings.map((item) => (
+
+                            <div>
+
+                            </div>
+
+                        ))
+
+                    ) : (
+
+                        <p>
+
+                        </p>
+
+                    )}
+
+                </section>
+
+            </main>
+
+            {/* Product Detail */} 
+            {selectedProduct && (
+
+            <div className="modal-overlay">
+
+                <div className="modal">
+
+                    <h2 className="modal-title">
+                        {selectedProduct.title}
+                    </h2>
+
+                    <div className="modal-content">
+
+                        <p>
+                            <strong>Category:</strong>
+                            {' '}
+                            {selectedProduct.category}
+                        </p>
+
+                        <p>
+                            <strong>Price:</strong>
+                            {' '}
+                            {selectedProduct.price}
+                        </p>
+
+                        <p>
+                            <strong>Seller:</strong>
+                            {' '}
+                            {selectedProduct.seller}
+                        </p>
+
+                        <p>
+                            <strong>Description:</strong>
+                        </p>
+
+                        <p className="description">
+                            {selectedProduct.description}
+                        </p>
+
+                    </div>
+
+                    <button
+                        className="close-button"
+                        onClick={() => setSelectedProduct(null)}
+                    >
+                        Close
+                    </button>
+
+                </div>
+
             </div>
-          ))}
-        </div>
-      </main>
-    </div>
-  );
-};
 
-const styles = {
-  container: { fontFamily: 'system-ui, sans-serif', backgroundColor: '#f9fafb', minHeight: '100vh' },
-  navbar: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#111827', padding: '15px 30px', color: '#fff' },
-  logo: { fontSize: '20px', margin: 0 },
-  navActions: { display: 'flex', alignItems: 'center', gap: '20px' },
-  welcome: { fontSize: '14px' },
-  logoutBtn: { backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' },
-  main: { padding: '40px 30px', maxWidth: '1200px', margin: '0 auto' },
-  headerArea: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' },
-  createBtn: { backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '10px 20px', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' },
-  grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' },
-  card: { backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px', position: 'relative', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' },
-  categoryBadge: { display: 'inline-block', backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '12px', padding: '3px 8px', borderRadius: '12px', fontWeight: '500', marginBottom: '12px' },
-  cardTitle: { fontSize: '18px', margin: '0 0 10px 0', color: '#1f2937' },
-  cardPrice: { fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: '0 0 15px 0' },
-  viewBtn: { width: '100%', backgroundColor: '#f3f4f6', color: '#374151', border: 'none', padding: '8px', borderRadius: '4px', fontWeight: '500', cursor: 'pointer' }
+            )}
+
+        </div>
+
+    );
 };

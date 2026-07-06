@@ -1,0 +1,376 @@
+/*
+ * HomePage.css
+ *
+ * Styles for the Student Marketplace home page.
+ * This file controls the overall page layout,
+ * navigation bar, search section, and listing cards.
+ */
+
+/* ---------- Page Layout ---------- */
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f9fafb;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.home-container {
+    min-height: 100vh;
+    background-color: #f9fafb;
+}
+
+/* ---------- Navigation ---------- */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 18px 32px;
+
+    background-color: #111827;
+    color: white;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.logo {
+    margin: 0;
+
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.welcome-text {
+    font-size: 15px;
+}
+
+.logout-button {
+    padding: 8px 14px;
+
+    border: none;
+    border-radius: 6px;
+
+    background-color: #ef4444;
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: background-color 0.2s ease;
+}
+
+.logout-button:hover {
+    background-color: #dc2626;
+}
+
+/* ---------- Main Content ---------- */
+
+.main-content {
+    max-width: 1200px;
+
+    margin: auto;
+
+    padding: 40px 30px;
+}
+
+.page-header {
+    display: flex;
+
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 30px;
+}
+
+.page-title {
+    margin: 0;
+
+    font-size: 28px;
+
+    color: #111827;
+}
+
+.page-description {
+    margin-top: 8px;
+
+    color: #6b7280;
+
+    font-size: 15px;
+}
+
+.new-listing-button {
+    padding: 11px 22px;
+
+    border: none;
+    border-radius: 6px;
+
+    background-color: #10b981;
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    transition: background-color 0.2s ease;
+}
+
+.new-listing-button:hover {
+    background-color: #059669;
+}
+
+/* ---------- Search ---------- */
+
+.search-section {
+    margin-bottom: 35px;
+}
+
+.search-input {
+    width: 100%;
+
+    padding: 14px 16px;
+
+    font-size: 15px;
+
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+
+    box-sizing: border-box;
+
+    outline: none;
+
+    transition: border-color 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* ---------- Listing Grid ---------- */
+
+.listing-grid {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+
+    gap: 24px;
+}
+
+/* ---------- Product Card ---------- */
+
+.listing-card {
+    background: white;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+
+    padding: 20px;
+
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.listing-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.10);
+}
+
+/* ---------- Category ---------- */
+
+.category-badge {
+    display: inline-block;
+
+    margin-bottom: 14px;
+
+    padding: 5px 10px;
+
+    border-radius: 20px;
+
+    background-color: #e0f2fe;
+
+    color: #0369a1;
+
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* ---------- Listing ---------- */
+
+.listing-title {
+    margin-top: 0;
+    margin-bottom: 12px;
+
+    font-size: 19px;
+
+    color: #1f2937;
+}
+
+.listing-price {
+    margin-bottom: 18px;
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+    color: #111827;
+}
+
+/* ---------- Buttons ---------- */
+
+.details-button {
+    width: 100%;
+
+    padding: 10px;
+
+    border: none;
+    border-radius: 6px;
+
+    background-color: #f3f4f6;
+
+    color: #374151;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.details-button:hover {
+    background-color: #2563eb;
+    color: white;
+}
+
+/* ---------- Empty State ---------- */
+
+.no-results {
+    grid-column: 1 / -1;
+
+    text-align: center;
+
+    padding: 60px 20px;
+
+    border: 2px dashed #d1d5db;
+    border-radius: 10px;
+
+    background-color: white;
+}
+
+.no-results h3 {
+    margin-bottom: 12px;
+
+    color: #374151;
+}
+
+.no-results p {
+    margin: 0;
+
+    color: #6b7280;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 768px) {
+
+    .navbar {
+        flex-direction: column;
+
+        gap: 15px;
+
+        text-align: center;
+    }
+
+    .page-header {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 20px;
+    }
+
+    .listing-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .search-section {
+
+        flex-direction: column;
+
+    }
+
+    .category-select {
+
+        width: 100%;
+
+    }
+}
+
+/* ---------- Category Filter ---------- */
+
+.search-section {
+
+    display: flex;
+
+    gap: 15px;
+
+    margin-bottom: 35px;
+
+}
+
+.search-input {
+
+    flex: 1;
+
+}
+
+.category-select {
+
+    width: 220px;
+
+    padding: 14px;
+
+    font-size: 15px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    background-color: white;
+
+    cursor: pointer;
+
+    outline: none;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+.category-select:focus {
+
+    border-color: #2563eb;
+
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+
+}
