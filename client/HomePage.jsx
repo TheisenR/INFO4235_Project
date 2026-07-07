@@ -7,9 +7,8 @@ import './styles/HomePage.css';
 
 export const HomePage = ({ user, onLogout }) => {
 
-    // Temporary marketplace listings used for development.
-    // These records will later be replaced with data from MongoDB.
-
+    // Temporary product data.
+    // These records will later be retrieved from MongoDB.
     const listings = [
         {
             id: 1,
@@ -64,8 +63,8 @@ export const HomePage = ({ user, onLogout }) => {
         user?.username ||
         'Student';
 
-    // Filters marketplace listings using the current search keyword
-    // and selected category.
+    // Create a new array containing only
+    // the listings that match the current filters.
     const filteredListings = listings.filter((item) => {
 
         // Check whether the listing title contains the search keyword.
@@ -95,7 +94,7 @@ export const HomePage = ({ user, onLogout }) => {
         <div className="container">
 
             {/* Navigation Bar */}
-            <nav>
+            <nav className="navbar">
                 <h1 className="logo">
                     Student Marketplace
                 </h1>
@@ -107,6 +106,7 @@ export const HomePage = ({ user, onLogout }) => {
                     </span>
 
                     <button
+                        type="button"
                         className="logout-button"
                         onClick={handleLogout}
                     >
@@ -117,12 +117,20 @@ export const HomePage = ({ user, onLogout }) => {
             </nav>
 
             {/* Main Content */}
-            <main>
+            <main className="main-content">
 
-                {/* Search */}
+                {/* Search Section */}
                 <section className="search-section">
 
+                    <label
+                        htmlFor="search"
+                        className="search-label"
+                    >
+                        Search
+                    </label>
+
                     <input
+                        id="search"
                         type="text"
                         className="search-input"
                         placeholder="Search for products..."
@@ -134,20 +142,23 @@ export const HomePage = ({ user, onLogout }) => {
 
                 </section>
 
-                {/* Header */}
+                {/* Marketplace Header */}
                 <section className="header-section">
 
                     <h2 className="page-title">
                         Current Marketplace Listings
                     </h2>
 
-                    <button className="create-button">
+                    <button
+                        className="create-button"
+                        type="button"
+                    >
                         + New Listing
                     </button>
 
                 </section>
 
-                {/* Category */}
+                {/* Category Filter */}
                 <section className="filter-section">
 
                     <label
@@ -181,14 +192,46 @@ export const HomePage = ({ user, onLogout }) => {
 
                 </section>
 
-                {/* Listings */}
-                <section>
+                {/* Marketplace listings */}
+                <section className="listing-grid">
 
                     {filteredListings.length > 0 ? (
 
                         filteredListings.map((item) => (
 
-                            <div>
+                            <div
+                                key={item.id}
+                                className="listing-card"
+                            >
+
+                                {/* Displays the product category */}
+                                <div className="category-badge">
+                                    {item.category}
+                                </div>
+
+                                {/* Displays the product title */}
+                                <h3 className="listing-title">
+                                    {item.title}
+                                </h3>
+
+                                {/* Displays the product price */}
+                                <p className="listing-price">
+                                    {item.price}
+                                </p>
+
+                                {/* Displays the seller's name */}
+                                <p className="listing-seller">
+                                    Seller: {item.seller}
+                                </p>
+
+                                {/* Opens the product detail dialog */}
+                                <button
+                                    type="button"
+                                    className="details-button"
+                                    onClick={() => setSelectedProduct(item)}
+                                >
+                                    View Details
+                                </button>
 
                             </div>
 
@@ -196,8 +239,8 @@ export const HomePage = ({ user, onLogout }) => {
 
                     ) : (
 
-                        <p>
-
+                        <p className="empty-message">
+                            No listings match your search.
                         </p>
 
                     )}
@@ -206,7 +249,7 @@ export const HomePage = ({ user, onLogout }) => {
 
             </main>
 
-            {/* Product Detail */} 
+            {/* Product Detail Dialog */}
             {selectedProduct && (
 
             <div className="modal-overlay">
@@ -248,6 +291,7 @@ export const HomePage = ({ user, onLogout }) => {
                     </div>
 
                     <button
+                        type="button"
                         className="close-button"
                         onClick={() => setSelectedProduct(null)}
                     >
