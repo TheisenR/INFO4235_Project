@@ -1,34 +1,29 @@
 import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 
-// LoginPage.jsx
-// Simple login form that calls a Meteor method `customLogin`.
-// When the server responds with success, it passes a `user` object
-// back to the parent via the `onLogin` prop.
-export const LoginPage = ({ onLogin }) => {
+export const LoginPage = ({ onLogin, onRegister }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  // Handle the form submission and call the server method.
-  // We expect the method to return an object like { success: true, user } on success.
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
 
-    Meteor.call('customLogin', email, password, (err, res) => {
+    Meteor.loginWithPassword(email, password, (err) => {
       if (err) {
-        // Show a readable error message if the call failed.
-        setError(err.reason || 'Invalid credentials');
+        setError(err.reason || 'Login failed.');
         return;
       }
 
-      if (res?.success) {
-        // Pass the returned user to the parent app so it can switch views.
-        onLogin(res.user || { emails: [{ address: email }], username: email });
-      } else {
-        setError('Invalid credentials');
-      }
+      const currentUser = Meteor.user();
+
+      onLogin({
+        _id: currentUser?._id,
+        emails: currentUser?.emails || [{ address: email }],
+        username: currentUser?.username || email,
+        profile: currentUser?.profile || {}
+      });
     });
   };
 
@@ -37,35 +32,39 @@ export const LoginPage = ({ onLogin }) => {
       <div style={styles.card}>
         <h2 style={styles.title}>Student Marketplace</h2>
         <p style={styles.subtitle}>Sign in with your student email</p>
-        
+
         {error && <p style={styles.errorText}>{error}</p>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
             <label style={styles.label}>Email Address</label>
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="yourname@school.com"
               style={styles.input}
-              required 
+              required
             />
           </div>
 
           <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="••••••••"
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Please enter your password"
               style={styles.input}
-              required 
+              required
             />
           </div>
 
           <button type="submit" style={styles.button}>Sign In</button>
+
+          <button type="button" onClick={onRegister} style={styles.registerBtn}>
+            Create Account
+          </button>
         </form>
       </div>
     </div>
@@ -82,5 +81,6 @@ const styles = {
   inputGroup: { marginBottom: '20px' },
   label: { display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#333' },
   input: { width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '14px' },
-  button: { width: '100%', padding: '12px', backgroundColor: '#0066cc', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' }
+  button: { width: '100%', padding: '12px', backgroundColor: '#0066cc', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' },
+  registerBtn: { width: '100%', padding: '10px', backgroundColor: '#ffffff', color: '#0066cc', border: '1px solid #0066cc', borderRadius: '4px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', marginTop: '12px' }
 };
