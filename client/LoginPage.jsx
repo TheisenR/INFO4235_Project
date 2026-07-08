@@ -1,86 +1,160 @@
 import React, { useState } from 'react';
 import { Meteor } from 'meteor/meteor';
+import './styles/LoginPage.css';
 
 // LoginPage.jsx
-// Simple login form that calls a Meteor method `customLogin`.
-// When the server responds with success, it passes a `user` object
-// back to the parent via the `onLogin` prop.
+// Displays the user login page.
+// Authenticates users through a Meteor server method and
+// notifies the parent component after a successful login.
+
 export const LoginPage = ({ onLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
-  // Handle the form submission and call the server method.
-  // We expect the method to return an object like { success: true, user } on success.
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError('');
+    // Stores the email entered by the user.
+    const [email, setEmail] = useState('');
 
-    Meteor.call('customLogin', email, password, (err, res) => {
-      if (err) {
-        // Show a readable error message if the call failed.
-        setError(err.reason || 'Invalid credentials');
-        return;
-      }
+    // Stores the password entered by the user.
+    const [password, setPassword] = useState('');
 
-      if (res?.success) {
-        // Pass the returned user to the parent app so it can switch views.
-        onLogin(res.user || { emails: [{ address: email }], username: email });
-      } else {
-        setError('Invalid credentials');
-      }
-    });
-  };
+    // Stores the current login error message.
+    const [error, setError] = useState('');
 
-  return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>Student Marketplace</h2>
-        <p style={styles.subtitle}>Sign in with your student email</p>
-        
-        {error && <p style={styles.errorText}>{error}</p>}
+    // Handles the login form submission.
+    // Calls the Meteor customLogin method and
+    // returns the authenticated user on success.
+    const handleSubmit = (event) => {
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Email Address</label>
-            <input 
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              placeholder="yourname@school.com"
-              style={styles.input}
-              required 
-            />
-          </div>
+        event.preventDefault();
 
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="••••••••"
-              style={styles.input}
-              required 
-            />
-          </div>
+        // Clear any previous error messages.
+        setError('');
 
-          <button type="submit" style={styles.button}>Sign In</button>
-        </form>
-      </div>
-    </div>
-  );
-};
+        Meteor.call(
+            'customLogin',
+            email,
+            password,
+            (err, result) => {
 
-const styles = {
-  container: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f5f7fb', fontFamily: 'system-ui, sans-serif' },
-  card: { backgroundColor: '#ffffff', padding: '40px', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px', textAlign: 'center' },
-  title: { margin: '0 0 10px 0', color: '#1a1a1a', fontSize: '24px' },
-  subtitle: { margin: '0 0 30px 0', color: '#666', fontSize: '14px' },
-  errorText: { color: '#ef4444', backgroundColor: '#fee2e2', padding: '10px', borderRadius: '4px', fontSize: '14px', marginBottom: '15px', textAlign: 'left' },
-  form: { textAlign: 'left' },
-  inputGroup: { marginBottom: '20px' },
-  label: { display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '500', color: '#333' },
-  input: { width: '100%', padding: '10px', borderRadius: '4px', border: '1px solid #ccc', boxSizing: 'border-box', fontSize: '14px' },
-  button: { width: '100%', padding: '12px', backgroundColor: '#0066cc', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' }
+                if (err) {
+
+                    // Display a readable server error.
+                    setError(err.reason || 'Invalid credentials');
+                    return;
+
+                }
+
+                if (result?.success) {
+
+                    // Notify the parent component that
+                    // authentication completed successfully.
+                    onLogin(
+                        result.user || {
+                            emails: [{ address: email }],
+                            username: email
+                        }
+                    );
+
+                }
+                else {
+
+                    // Display a generic login error.
+                    setError('Invalid credentials');
+
+                }
+
+            }
+        );
+
+    };
+
+    return (
+
+        <div className="login-container">
+
+            <div className="login-card">
+
+                <h2 className="login-title">
+                    Student Marketplace
+                </h2>
+
+                <p className="login-subtitle">
+                    Sign in with your student email
+                </p>
+
+                {/* Displays an error message if authentication fails */}
+                {error && (
+
+                    <p className="error-message">
+                        {error}
+                    </p>
+
+                )}
+
+                <form
+                    className="login-form"
+                    onSubmit={handleSubmit}
+                >
+
+                    {/* Email Address */}
+                    <div className="input-group">
+
+                        <label
+                            className="input-label"
+                            htmlFor="email"
+                        >
+                            Email Address
+                        </label>
+
+                        <input
+                            id="email"
+                            type="email"
+                            className="input-field"
+                            placeholder="yourname@school.com"
+                            value={email}
+                            onChange={(event) =>
+                                setEmail(event.target.value)
+                            }
+                            required
+                        />
+
+                    </div>
+
+                    {/* Password */}
+                    <div className="input-group">
+
+                        <label
+                            className="input-label"
+                            htmlFor="password"
+                        >
+                            Password
+                        </label>
+
+                        <input
+                            id="password"
+                            type="password"
+                            className="input-field"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(event) =>
+                                setPassword(event.target.value)
+                            }
+                            required
+                        />
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="login-button"
+                    >
+                        Sign In
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    );
+
 };

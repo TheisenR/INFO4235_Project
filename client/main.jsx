@@ -1,14 +1,26 @@
 import React from 'react';
-import { Meteor } from 'meteor/meteor';
 import ReactDOM from 'react-dom/client';
+import { Meteor } from 'meteor/meteor';
+
 import { App } from './App.jsx';
 
-// Client startup file. When Meteor is ready on the client, mount
-// the top-level React `App` component into the DOM element with id `root`.
+// main.jsx
+// Client entry point.
+// Renders the React application after
+// the Meteor client has finished loading.
+
 Meteor.startup(() => {
-  ReactDOM.createRoot(document.getElementById('root')).render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>
-  );
+
+    ReactDOM.createRoot(
+        document.getElementById('root')
+    ).render(
+
+        <React.StrictMode>
+
+            <App />
+
+        </React.StrictMode>
+
+    );
+
 });

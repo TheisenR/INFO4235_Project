@@ -1,0 +1,161 @@
+/* ==========================================================
+   LoginPage.css
+   Styles for the Student Marketplace login page.
+   ========================================================== */
+
+
+/* ==========================================================
+   Login Page Layout
+   ========================================================== */
+
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    min-height: 100vh;
+
+    background-color: #f4f6f9;
+}
+
+
+/* ==========================================================
+   Login Card
+   ========================================================== */
+
+.login-card {
+    width: 400px;
+    max-width: 90%;
+
+    padding: 40px;
+
+    background-color: #ffffff;
+
+    border-radius: 10px;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+
+/* ==========================================================
+   Page Title
+   ========================================================== */
+
+.login-title {
+    margin-bottom: 10px;
+
+    text-align: center;
+
+    font-size: 28px;
+
+    color: #1f2937;
+}
+
+
+.login-subtitle {
+    margin-bottom: 30px;
+
+    text-align: center;
+
+    color: #6b7280;
+}
+
+
+/* ==========================================================
+   Error Message
+   ========================================================== */
+
+.error-message {
+    margin-bottom: 20px;
+
+    padding: 12px;
+
+    border-radius: 6px;
+
+    background-color: #fee2e2;
+
+    color: #dc2626;
+}
+
+
+/* ==========================================================
+   Login Form
+   ========================================================== */
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+
+    gap: 20px;
+}
+
+
+/* ==========================================================
+   Input Group
+   ========================================================== */
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.input-label {
+    margin-bottom: 8px;
+
+    font-weight: 600;
+}
+
+
+.input-field {
+    padding: 12px;
+
+    border: 1px solid #cccccc;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+
+    transition: 0.2s;
+}
+
+
+.input-field:focus {
+    outline: none;
+
+    border-color: #2563eb;
+
+    box-shadow: 0 0 5px rgba(37, 99, 235, 0.25);
+}
+
+
+/* ==========================================================
+   Submit Button
+   ========================================================== */
+
+.login-button {
+    margin-top: 10px;
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background-color: #2563eb;
+
+    color: white;
+
+    font-size: 16px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    transition: 0.25s;
+}
+
+
+.login-button:hover {
+    background-color: #1d4ed8;
+}
