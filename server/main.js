@@ -3,8 +3,9 @@ import { Mongo } from 'meteor/mongo';
 import { Accounts } from 'meteor/accounts-base';
 import { check } from 'meteor/check';
 
-const Wishlists = new Mongo.Collection('wishlists');
+const Wishlists = new Mongo.Collection('Wishlists');
 const Reviews = new Mongo.Collection('reviews');
+const Listings = new Mongo.Collection('Listings');
 
 Meteor.startup(() => {
   console.log('Meteor server started');
@@ -12,12 +13,24 @@ Meteor.startup(() => {
 });
 
 Meteor.methods({
-  async 'customRegister'(username, email, password) {
+  async 'customRegister'(username, email, password, firstName, lastName, campus, institution) {
     check(username, String);
     check(email, String);
     check(password, String);
+    check(firstName, String);
+    check(lastName, String);
+    check(campus, String);
+    check(institution, String);
 
-    if (!username.trim() || !email.trim() || !password.trim()) {
+    if (
+      !username.trim() ||
+      !email.trim() ||
+      !password.trim() ||
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !campus.trim() ||
+      !institution.trim()
+    ) {
       throw new Meteor.Error('missing-fields', 'Please fill in all fields.');
     }
 
@@ -39,6 +52,10 @@ Meteor.methods({
       password,
       profile: {
         displayName: username,
+        firstName,
+        lastName,
+        campus,
+        institution,
         bio: '',
         phone: ''
       }
@@ -53,20 +70,27 @@ Meteor.methods({
 
     await Meteor.users.updateAsync(userId, {
       $set: {
-        profile: {
-          displayName: profile.displayName || '',
-          phone: profile.phone || '',
-          bio: profile.bio || ''
-        }
+        'profile.displayName': profile.displayName || '',
+        'profile.firstName': profile.firstName || '',
+        'profile.lastName': profile.lastName || '',
+        'profile.campus': profile.campus || '',
+        'profile.institution': profile.institution || '',
+        'profile.phone': profile.phone || '',
+        'profile.bio': profile.bio || ''
       }
     });
 
     return { success: true };
   },
 
-  async 'addWishlist'(userId, product) {
-    check(userId, String);
+  async 'addWishlist'(product) {
     check(product, Object);
+
+    const userId = this.userId;
+
+    if (!userId) {
+      throw new Meteor.Error('not-authorized', 'You must be logged in to add wishlist items.');
+    }
 
     const existing = await Wishlists.findOneAsync({
       userId,
@@ -86,8 +110,12 @@ Meteor.methods({
     return { success: true };
   },
 
-  async 'getWishlist'(userId) {
-    check(userId, String);
+  async 'getWishlist'() {
+    const userId = this.userId;
+
+    if (!userId) {
+      throw new Meteor.Error('not-authorized', 'You must be logged in to view wishlist items.');
+    }
 
     return await Wishlists.find(
       { userId },
@@ -98,7 +126,20 @@ Meteor.methods({
   async 'removeWishlist'(wishlistId) {
     check(wishlistId, String);
 
-    await Wishlists.removeAsync(wishlistId);
+    const userId = this.userId;
+
+    if (!userId) {
+      throw new Meteor.Error('not-authorized', 'You must be logged in to remove wishlist items.');
+    }
+
+    const removedCount = await Wishlists.removeAsync({
+      _id: wishlistId,
+      userId
+    });
+
+    if (removedCount === 0) {
+      throw new Meteor.Error('not-found', 'Wishlist item not found for this user.');
+    }
 
     return { success: true };
   },
@@ -125,5 +166,12 @@ async 'getReviews'() {
     {},
     { sort: { createdAt: -1 } }
   ).fetchAsync();
+  },
+
+  async 'getListings'() {
+    return await Listings.find(
+      {},
+      { sort: { createdAt: -1 } }
+    ).fetchAsync();
   }
 });

@@ -3,6 +3,10 @@ import { Meteor } from 'meteor/meteor';
 
 export const ProfilePage = ({ user, onBack }) => {
   const [displayName, setDisplayName] = useState(user?.profile?.displayName || user?.username || '');
+  const [firstName, setFirstName] = useState(user?.profile?.firstName || '');
+  const [lastName, setLastName] = useState(user?.profile?.lastName || '');
+  const [campus, setCampus] = useState(user?.profile?.campus || '');
+  const [institution, setInstitution] = useState(user?.profile?.institution || '');
   const [bio, setBio] = useState(user?.profile?.bio || '');
   const [phone, setPhone] = useState(user?.profile?.phone || '');
   const [message, setMessage] = useState('');
@@ -12,7 +16,7 @@ export const ProfilePage = ({ user, onBack }) => {
   const handleSave = (e) => {
     e.preventDefault();
 
-    Meteor.call('updateProfile', user._id, { displayName, bio, phone }, (err) => {
+    Meteor.call('updateProfile', user._id, { displayName, firstName, lastName, campus, institution, bio, phone }, (err) => {
       if (err) {
         setMessage(err.reason || 'Update failed.');
       } else {
@@ -32,6 +36,18 @@ export const ProfilePage = ({ user, onBack }) => {
         <form onSubmit={handleSave}>
           <label>Display Name</label>
           <input style={styles.input} value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+
+          <label>First Name</label>
+          <input style={styles.input} value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+
+          <label>Last Name</label>
+          <input style={styles.input} value={lastName} onChange={(e) => setLastName(e.target.value)} />
+
+          <label>Campus</label>
+          <input style={styles.input} value={campus} onChange={(e) => setCampus(e.target.value)} />
+
+          <label>Institution</label>
+          <input style={styles.input} value={institution} onChange={(e) => setInstitution(e.target.value)} />
 
           <label>Phone</label>
           <input style={styles.input} value={phone} onChange={(e) => setPhone(e.target.value)} />

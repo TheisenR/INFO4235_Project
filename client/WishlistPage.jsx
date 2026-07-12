@@ -6,7 +6,7 @@ export const WishlistPage = ({ user, onBack }) => {
   const [message, setMessage] = useState('');
 
   const loadWishlist = () => {
-    Meteor.call('getWishlist', user._id, (err, res) => {
+    Meteor.call('getWishlist', (err, res) => {
       if (err) {
         setMessage(err.reason || 'Failed to load wishlist.');
       } else {

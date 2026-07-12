@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Meteor } from 'meteor/meteor';
 
 export const HomePage = ({ user, onLogout, onProfile, onWishlist, onReview }) => {
-  const listings = [
-    { id: 1, title: "Textbook: Intro to Cloud Computing", price: "$45", category: "Books" },
-    { id: 2, title: "PlayStation 5 Controller - Mint Condition", price: "$50", category: "Electronics" },
-    { id: 3, title: "Desk Lamp (LED with USB port)", price: "$15", category: "Home Goods" }
-  ];
+  const [listings, setListings] = useState([]);
+  const [loadingListings, setLoadingListings] = useState(true);
+  const [listingsError, setListingsError] = useState('');
 
-  const email = user?.emails?.[0]?.address || user?.username || 'Student';
+  const username = user?.username || user?.emails?.[0]?.address || 'Student';
+
+  useEffect(() => {
+    Meteor.call('getListings', (err, res) => {
+      if (err) {
+        setListingsError(err.reason || 'Failed to load listings.');
+      } else {
+        setListings(Array.isArray(res) ? res : []);
+      }
+
+      setLoadingListings(false);
+    });
+  }, []);
 
   const handleLogout = () => {
     if (typeof onLogout === 'function') {
@@ -17,7 +27,7 @@ export const HomePage = ({ user, onLogout, onProfile, onWishlist, onReview }) =>
   };
 
   const handleAddWishlist = (item) => {
-    Meteor.call('addWishlist', user._id, item, (err) => {
+    Meteor.call('addWishlist', item, (err) => {
       if (err) {
         alert(err.reason || 'Failed to add wishlist.');
       } else {
@@ -32,7 +42,7 @@ export const HomePage = ({ user, onLogout, onProfile, onWishlist, onReview }) =>
         <h1 style={styles.logo}>Student Marketplace</h1>
 
         <div style={styles.navActions}>
-          <span style={styles.welcome}>Welcome, <strong>{email}</strong></span>
+          <span style={styles.welcome}>Welcome, <strong>{username}</strong></span>
           <button onClick={onProfile} style={styles.profileBtn}>Profile</button>
           <button onClick={onWishlist} style={styles.wishlistNavBtn}>Wishlist</button>
           <button onClick={onReview} style={styles.reviewBtn}>Reviews</button>
@@ -47,22 +57,47 @@ export const HomePage = ({ user, onLogout, onProfile, onWishlist, onReview }) =>
         </div>
 
         <div style={styles.grid}>
-          {listings.map((item) => (
-            <div key={item.id} style={styles.card}>
-              <div style={styles.categoryBadge}>{item.category}</div>
-              <h3 style={styles.cardTitle}>{item.title}</h3>
-              <p style={styles.cardPrice}>{item.price}</p>
+          {loadingListings && <p style={styles.statusText}>Loading listings...</p>}
 
-              <button style={styles.viewBtn}>View Details</button>
+          {!loadingListings && listingsError && (
+            <p style={styles.statusError}>{listingsError}</p>
+          )}
 
-              <button
-                style={styles.wishlistCardBtn}
-                onClick={() => handleAddWishlist(item)}
-              >
-                ♡ Add to Wishlist
-              </button>
-            </div>
-          ))}
+          {!loadingListings && !listingsError && listings.length === 0 && (
+            <p style={styles.statusText}>No listings available yet.</p>
+          )}
+
+          {!loadingListings && !listingsError && listings.map((item) => {
+            const listingId = item?.id || item?._id;
+            const title = item?.title || item?.name || 'Untitled Listing';
+            const category = item?.category || 'General';
+            const rawPrice = item?.price;
+            const price = typeof rawPrice === 'number'
+              ? `$${rawPrice}`
+              : (rawPrice || 'Price not listed');
+
+            const wishlistItem = {
+              ...item,
+              id: listingId
+            };
+
+            return (
+              <div key={listingId || title} style={styles.card}>
+                <div style={styles.categoryBadge}>{category}</div>
+                <h3 style={styles.cardTitle}>{title}</h3>
+                <p style={styles.cardPrice}>{price}</p>
+
+                <button style={styles.viewBtn}>View Details</button>
+
+                <button
+                  style={styles.wishlistCardBtn}
+                  onClick={() => handleAddWishlist(wishlistItem)}
+                >
+                  ♡ Add to Wishlist
+                </button>
+              </div>
+            );
+          })}
         </div>
       </main>
     </div>
@@ -87,6 +122,8 @@ const styles = {
   categoryBadge: { display: 'inline-block', backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '12px', padding: '3px 8px', borderRadius: '12px', fontWeight: '500', marginBottom: '12px' },
   cardTitle: { fontSize: '18px', margin: '0 0 10px 0', color: '#1f2937' },
   cardPrice: { fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: '0 0 15px 0' },
+  statusText: { gridColumn: '1 / -1', color: '#4b5563', margin: 0 },
+  statusError: { gridColumn: '1 / -1', color: '#b91c1c', margin: 0 },
   viewBtn: { width: '100%', backgroundColor: '#f3f4f6', color: '#374151', border: 'none', padding: '8px', borderRadius: '4px', fontWeight: '500', cursor: 'pointer', marginBottom: '10px' },
   wishlistCardBtn: { width: '100%', backgroundColor: '#7c3aed', color: '#fff', border: 'none', padding: '8px', borderRadius: '4px', fontWeight: '500', cursor: 'pointer' }
 };
