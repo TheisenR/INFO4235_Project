@@ -53,6 +53,11 @@ export const WishlistPage = ({ user, onBack }) => {
           <div style={styles.grid}>
             {items.map((item) => (
               <div key={item._id} style={styles.card}>
+                {item?.product?.imageUrl ? (
+                  <img src={item.product.imageUrl} alt={item.product.title || 'Wishlist item'} style={styles.cardImage} />
+                ) : (
+                  <div style={styles.imageFallback}>No Image</div>
+                )}
                 <div style={styles.categoryBadge}>{item.product.category}</div>
                 <h3 style={styles.cardTitle}>{item.product.title}</h3>
                 <p style={styles.price}>{item.product.price}</p>
@@ -85,6 +90,8 @@ const styles = {
   emptyBtn: { marginTop: '15px', backgroundColor: '#7c3aed', color: '#fff', border: 'none', padding: '10px 16px', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' },
   grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '25px' },
   card: { backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '20px' },
+  cardImage: { width: '100%', height: '170px', objectFit: 'cover', borderRadius: '6px', marginBottom: '12px', backgroundColor: '#f3f4f6' },
+  imageFallback: { width: '100%', height: '170px', borderRadius: '6px', marginBottom: '12px', backgroundColor: '#e5e7eb', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600 },
   categoryBadge: { display: 'inline-block', backgroundColor: '#ede9fe', color: '#6d28d9', fontSize: '12px', padding: '3px 8px', borderRadius: '12px', fontWeight: '500', marginBottom: '12px' },
   cardTitle: { fontSize: '18px', margin: '0 0 10px 0', color: '#1f2937' },
   price: { fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: '0 0 12px 0' },

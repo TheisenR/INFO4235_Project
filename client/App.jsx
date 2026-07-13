@@ -11,10 +11,14 @@ import { RegisterPage } from './RegisterPage.jsx';
 import { ProfilePage } from './ProfilePage.jsx';
 import { WishlistPage } from './WishlistPage.jsx';
 import { ReviewPage } from './ReviewPage.jsx';
+import { ListingDetailsPage } from './ListingDetailsPage.jsx';
+import { CreateListingPage } from './CreateListingPage.jsx';
+import { MyListingsPage } from './MyListingsPage.jsx';
 
 export const App = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [currentPage, setCurrentPage] = useState('login');
+  const [selectedListingId, setSelectedListingId] = useState('');
 
   const handleLogin = (user) => {
     setCurrentUser(user);
@@ -51,13 +55,52 @@ export const App = () => {
     return <ReviewPage user={currentUser} onBack={() => setCurrentPage('home')} />;
   }
 
+  if (currentPage === 'listing-details') {
+    return (
+      <ListingDetailsPage
+        user={currentUser}
+        listingId={selectedListingId}
+        onBack={() => setCurrentPage('home')}
+      />
+    );
+  }
+
+  if (currentPage === 'create-listing') {
+    return (
+      <CreateListingPage
+        user={currentUser}
+        onBack={() => setCurrentPage('home')}
+        onCreated={() => setCurrentPage('home')}
+      />
+    );
+  }
+
+  if (currentPage === 'my-listings') {
+    return (
+      <MyListingsPage
+        user={currentUser}
+        onBack={() => setCurrentPage('home')}
+        onViewDetails={(listingId) => {
+          setSelectedListingId(listingId);
+          setCurrentPage('listing-details');
+        }}
+      />
+    );
+  }
+
   return (
     <HomePage
       user={currentUser}
       onLogout={handleLogout}
       onProfile={() => setCurrentPage('profile')}
+      onMyListings={() => setCurrentPage('my-listings')}
       onWishlist={() => setCurrentPage('wishlist')}
       onReview={() => setCurrentPage('review')}
+      onCreateListing={() => setCurrentPage('create-listing')}
+      onViewDetails={(listingId) => {
+        setSelectedListingId(listingId);
+        setCurrentPage('listing-details');
+      }}
     />
   );
 };
