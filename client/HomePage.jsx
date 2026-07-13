@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
+import { Meteor } from 'meteor/meteor';
+import { CreateListingModal } from './components/CreateListingModal';
 import './styles/HomePage.css';
 
 // HomePage.jsx
 // Main marketplace page displayed after a successful login.
-// Allows users to browse, search, and view marketplace listings.
+// Allows users to browse, search, create, and view marketplace listings.
 
 export const HomePage = ({ user, onLogout }) => {
 
-    // Temporary product data.
-    // These records will later be retrieved from MongoDB.
+    // Temporary marketplace listings used for development.
+    // These records will later be replaced with data from MongoDB.
     const listings = [
         {
             id: 1,
@@ -39,48 +41,75 @@ export const HomePage = ({ user, onLogout }) => {
         }
     ];
 
-    // Stores the current search keyword entered by the user.
+    // Stores the current search keyword.
     const [searchTerm, setSearchTerm] = useState('');
 
-    // Stores the currently selected category.
+    // Stores the selected category.
     const [selectedCategory, setSelectedCategory] = useState('All');
 
-    // Stores the selected product for the detail dialog.
+    // Stores the currently selected product.
     const [selectedProduct, setSelectedProduct] = useState(null);
 
-    // Signs the current user out by calling the callback
-    // provided by the parent component.
+    // Displays the user's email if available.
+    const email =
+        user?.emails?.[0]?.address ||
+        user?.username ||
+        'Student';
+
+    // Controls the Create Listing dialog.
+    const [showCreateModal, setShowCreateModal] = useState(false);
+
+    // Stores the Create Listing form values.
+    const [newListing, setNewListing] = useState({
+        title: '',
+        price: '',
+        category: 'Books',
+        seller: email,
+        description: ''
+    });
+
+    // Handles user logout.
     const handleLogout = () => {
         if (typeof onLogout === 'function') {
             onLogout();
         }
     };
 
-    // Displays the user's email address if available.
-    // Falls back to the username or a default label.
-    const email =
-        user?.emails?.[0]?.address ||
-        user?.username ||
-        'Student';
+    // Sends a new listing to the server.
+    const handleCreateListing = (listing) => {
+        Meteor.call(
+            'createListing',
+            {
+                ...listing,
+                seller: email
+            },
+            (error) => {
+                if (error) {
+                    alert(error.reason);
+                    return;
+                }
 
-    // Create a new array containing only
-    // the listings that match the current filters.
+                alert('Listing created successfully.');
+            }
+        );
+    };
+
+    // Filters marketplace listings.
     const filteredListings = listings.filter((item) => {
 
-        // Check whether the listing title contains the search keyword.
         const matchesSearch =
-            item.title.toLowerCase().includes(searchTerm.toLowerCase());
+            item.title
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase());
 
-        // Check whether the selected category matches the listing category.
         const matchesCategory =
             selectedCategory === 'All' ||
             item.category === selectedCategory;
 
-        // Display the listing only if both conditions are satisfied.
         return matchesSearch && matchesCategory;
     });
 
-    // Available product categories displayed in the filter menu.
+    // Available categories.
     const categories = [
         'All',
         'Books',
@@ -90,11 +119,11 @@ export const HomePage = ({ user, onLogout }) => {
 
     return (
 
-        // Container
         <div className="container">
 
             {/* Navigation Bar */}
             <nav className="navbar">
+
                 <h1 className="logo">
                     Student Marketplace
                 </h1>
@@ -114,12 +143,13 @@ export const HomePage = ({ user, onLogout }) => {
                     </button>
 
                 </div>
+
             </nav>
 
             {/* Main Content */}
             <main className="main-content">
 
-                {/* Search Section */}
+                {/* Search */}
                 <section className="search-section">
 
                     <label
@@ -142,7 +172,7 @@ export const HomePage = ({ user, onLogout }) => {
 
                 </section>
 
-                {/* Marketplace Header */}
+                {/* Header */}
                 <section className="header-section">
 
                     <h2 className="page-title">
@@ -150,8 +180,9 @@ export const HomePage = ({ user, onLogout }) => {
                     </h2>
 
                     <button
-                        className="create-button"
                         type="button"
+                        className="create-button"
+                        onClick={() => setShowCreateModal(true)}
                     >
                         + New Listing
                     </button>
@@ -162,8 +193,8 @@ export const HomePage = ({ user, onLogout }) => {
                 <section className="filter-section">
 
                     <label
-                        className="filter-label"
                         htmlFor="category"
+                        className="filter-label"
                     >
                         Category
                     </label>
@@ -192,7 +223,7 @@ export const HomePage = ({ user, onLogout }) => {
 
                 </section>
 
-                {/* Marketplace listings */}
+                {/* Marketplace Listings */}
                 <section className="listing-grid">
 
                     {filteredListings.length > 0 ? (
@@ -204,27 +235,22 @@ export const HomePage = ({ user, onLogout }) => {
                                 className="listing-card"
                             >
 
-                                {/* Displays the product category */}
                                 <div className="category-badge">
                                     {item.category}
                                 </div>
 
-                                {/* Displays the product title */}
                                 <h3 className="listing-title">
                                     {item.title}
                                 </h3>
 
-                                {/* Displays the product price */}
                                 <p className="listing-price">
                                     {item.price}
                                 </p>
 
-                                {/* Displays the seller's name */}
                                 <p className="listing-seller">
                                     Seller: {item.seller}
                                 </p>
 
-                                {/* Opens the product detail dialog */}
                                 <button
                                     type="button"
                                     className="details-button"
@@ -252,59 +278,62 @@ export const HomePage = ({ user, onLogout }) => {
             {/* Product Detail Dialog */}
             {selectedProduct && (
 
-            <div className="modal-overlay">
+                <div className="modal-overlay">
 
-                <div className="modal">
+                    <div className="modal">
 
-                    <h2 className="modal-title">
-                        {selectedProduct.title}
-                    </h2>
+                        <h2 className="modal-title">
+                            {selectedProduct.title}
+                        </h2>
 
-                    <div className="modal-content">
+                        <div className="modal-content">
 
-                        <p>
-                            <strong>Category:</strong>
-                            {' '}
-                            {selectedProduct.category}
-                        </p>
+                            <p>
+                                <strong>Category:</strong> {selectedProduct.category}
+                            </p>
 
-                        <p>
-                            <strong>Price:</strong>
-                            {' '}
-                            {selectedProduct.price}
-                        </p>
+                            <p>
+                                <strong>Price:</strong> {selectedProduct.price}
+                            </p>
 
-                        <p>
-                            <strong>Seller:</strong>
-                            {' '}
-                            {selectedProduct.seller}
-                        </p>
+                            <p>
+                                <strong>Seller:</strong> {selectedProduct.seller}
+                            </p>
 
-                        <p>
-                            <strong>Description:</strong>
-                        </p>
+                            <p>
+                                <strong>Description:</strong>
+                            </p>
 
-                        <p className="description">
-                            {selectedProduct.description}
-                        </p>
+                            <p className="description">
+                                {selectedProduct.description}
+                            </p>
+
+                        </div>
+
+                        <button
+                            type="button"
+                            className="close-button"
+                            onClick={() => setSelectedProduct(null)}
+                        >
+                            Close
+                        </button>
 
                     </div>
 
-                    <button
-                        type="button"
-                        className="close-button"
-                        onClick={() => setSelectedProduct(null)}
-                    >
-                        Close
-                    </button>
-
                 </div>
 
-            </div>
+            )}
 
+            {/* Create Listing Dialog */}
+            {showCreateModal && (
+                <CreateListingModal
+                    onClose={() => setShowCreateModal(false)}
+                    onSubmit={handleCreateListing}
+                />
             )}
 
         </div>
 
     );
+
 };
