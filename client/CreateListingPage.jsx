@@ -6,6 +6,7 @@ export const CreateListingPage = ({ user, onBack, onCreated }) => {
     title: '',
     category: '',
     price: '',
+    status: 'Available',
     condition: '',
     location: '',
     description: '',
@@ -86,6 +87,7 @@ export const CreateListingPage = ({ user, onBack, onCreated }) => {
         title: form.title.trim(),
         category: form.category.trim(),
         price: parsedPrice,
+        status: form.status,
         condition: form.condition.trim(),
         location: form.location.trim(),
         description: form.description.trim(),
@@ -155,6 +157,17 @@ export const CreateListingPage = ({ user, onBack, onCreated }) => {
               step="0.01"
               required
             />
+
+            <label style={styles.label}>Status</label>
+            <select
+              style={styles.input}
+              value={form.status}
+              onChange={(e) => handleChange('status', e.target.value)}
+            >
+              <option value="Available">Available</option>
+              <option value="Reserved">Reserved</option>
+              <option value="Sold">Sold</option>
+            </select>
 
             <label style={styles.label}>Condition</label>
             <input

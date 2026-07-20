@@ -12,11 +12,38 @@ export const MyListingsPage = ({ user, onBack, onViewDetails }) => {
     title: '',
     category: '',
     price: '',
+    status: 'Available',
     condition: '',
     location: '',
     description: '',
     imageUrl: ''
   });
+
+  const getListingStatus = (item) => {
+    const statusValue = (item?.status || 'Available').toString().toLowerCase();
+
+    if (statusValue === 'reserved') {
+      return 'Reserved';
+    }
+
+    if (statusValue === 'sold') {
+      return 'Sold';
+    }
+
+    return 'Available';
+  };
+
+  const getStatusStyle = (status) => {
+    if (status === 'Sold') {
+      return styles.statusSold;
+    }
+
+    if (status === 'Reserved') {
+      return styles.statusReserved;
+    }
+
+    return styles.statusAvailable;
+  };
 
   const normalizeListingId = (value) => {
     if (!value) {
@@ -73,6 +100,7 @@ export const MyListingsPage = ({ user, onBack, onViewDetails }) => {
       title: item?.title || item?.name || '',
       category: item?.category || '',
       price: item?.price ?? '',
+      status: getListingStatus(item),
       condition: item?.condition || '',
       location: item?.location || '',
       description: item?.description || item?.details || '',
@@ -108,6 +136,7 @@ export const MyListingsPage = ({ user, onBack, onViewDetails }) => {
         title: editForm.title.trim(),
         category: editForm.category.trim(),
         price: parsedPrice,
+        status: editForm.status,
         condition: editForm.condition.trim(),
         location: editForm.location.trim(),
         description: editForm.description.trim(),
@@ -186,6 +215,7 @@ export const MyListingsPage = ({ user, onBack, onViewDetails }) => {
               const listingId = normalizeListingId(item?.id) || normalizeListingId(item?._id);
               const title = item?.title || item?.name || 'Untitled Listing';
               const category = item?.category || 'General';
+              const status = getListingStatus(item);
               const rawPrice = item?.price;
               const price = typeof rawPrice === 'number'
                 ? `$${rawPrice}`
@@ -200,6 +230,7 @@ export const MyListingsPage = ({ user, onBack, onViewDetails }) => {
                   )}
 
                   <div style={styles.categoryBadge}>{category}</div>
+                  <div style={{ ...styles.statusBadge, ...getStatusStyle(status) }}>{status}</div>
                   <h3 style={styles.cardTitle}>{title}</h3>
                   <p style={styles.price}>{price}</p>
 
@@ -258,6 +289,17 @@ export const MyListingsPage = ({ user, onBack, onViewDetails }) => {
                         value={editForm.price}
                         onChange={(e) => setEditForm((prev) => ({ ...prev, price: e.target.value }))}
                       />
+
+                      <label style={styles.editLabel}>Status</label>
+                      <select
+                        style={styles.editInput}
+                        value={editForm.status}
+                        onChange={(e) => setEditForm((prev) => ({ ...prev, status: e.target.value }))}
+                      >
+                        <option value="Available">Available</option>
+                        <option value="Reserved">Reserved</option>
+                        <option value="Sold">Sold</option>
+                      </select>
 
                       <label style={styles.editLabel}>Condition</label>
                       <input
@@ -331,6 +373,10 @@ const styles = {
   cardImage: { width: '100%', height: '170px', objectFit: 'cover', borderRadius: '6px', marginBottom: '12px', backgroundColor: '#f3f4f6' },
   imageFallback: { width: '100%', height: '170px', borderRadius: '6px', marginBottom: '12px', backgroundColor: '#e5e7eb', color: '#6b7280', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 600 },
   categoryBadge: { display: 'inline-block', backgroundColor: '#e0f2fe', color: '#0369a1', fontSize: '12px', padding: '3px 8px', borderRadius: '12px', fontWeight: '500', marginBottom: '12px' },
+  statusBadge: { display: 'inline-block', fontSize: '12px', padding: '3px 8px', borderRadius: '12px', fontWeight: '700', marginBottom: '12px', marginLeft: '8px' },
+  statusAvailable: { backgroundColor: '#dcfce7', color: '#166534' },
+  statusReserved: { backgroundColor: '#fef3c7', color: '#92400e' },
+  statusSold: { backgroundColor: '#fee2e2', color: '#b91c1c' },
   cardTitle: { fontSize: '18px', margin: '0 0 10px 0', color: '#1f2937' },
   price: { fontSize: '20px', fontWeight: 'bold', color: '#111827', margin: '0 0 12px 0' },
   buttonRow: { display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginBottom: '10px' },

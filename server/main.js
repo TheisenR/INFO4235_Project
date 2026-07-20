@@ -7,6 +7,20 @@ const Wishlists = new Mongo.Collection('Wishlists');
 const Reviews = new Mongo.Collection('Reviews');
 const Listings = new Mongo.Collection('Listings');
 const Purchases = new Mongo.Collection('Purchases');
+const LISTING_STATUSES = ['Available', 'Reserved', 'Sold'];
+
+const normalizeListingStatus = (statusValue) => {
+  const status = (statusValue || 'Available').toString().trim();
+  const matchedStatus = LISTING_STATUSES.find(
+    (allowedStatus) => allowedStatus.toLowerCase() === status.toLowerCase()
+  );
+
+  if (!matchedStatus) {
+    throw new Meteor.Error('invalid-status', 'Status must be Available, Reserved, or Sold.');
+  }
+
+  return matchedStatus;
+};
 
 const normalizeListingId = (listingId) => {
   if (typeof listingId === 'string' && listingId.trim()) {
@@ -423,6 +437,7 @@ async 'getReviews'() {
       condition: String,
       location: String,
       description: String,
+      status: Match.Optional(String),
       imageUrl: Match.Optional(String)
     }));
 
@@ -437,6 +452,7 @@ async 'getReviews'() {
     const description = listingInput.description.trim();
     const condition = listingInput.condition.trim();
     const location = listingInput.location.trim();
+    const status = normalizeListingStatus(listingInput.status);
     const imageUrl = (listingInput.imageUrl || '').trim();
     const price = Number(listingInput.price);
 
@@ -463,6 +479,7 @@ async 'getReviews'() {
       condition,
       location,
       description,
+      status,
       imageUrl,
       sellerId: userId,
       sellerEmail,
@@ -485,6 +502,7 @@ async 'getReviews'() {
       condition: String,
       location: String,
       description: String,
+      status: Match.Optional(String),
       imageUrl: Match.Optional(String)
     }));
 
@@ -520,6 +538,7 @@ async 'getReviews'() {
     const description = listingInput.description.trim();
     const condition = listingInput.condition.trim();
     const location = listingInput.location.trim();
+    const status = normalizeListingStatus(listingInput.status || listing.status);
     const imageUrl = (listingInput.imageUrl || '').trim();
     const price = Number(listingInput.price);
 
@@ -541,6 +560,7 @@ async 'getReviews'() {
           condition,
           location,
           description,
+          status,
           imageUrl,
           updatedAt: new Date()
         }
@@ -636,6 +656,49 @@ async 'getReviews'() {
     return { listing, seller };
   },
 
+  async 'reserveListing'(listingId) {
+    check(listingId, Match.OneOf(String, Object));
+
+    const { query } = getListingQuery(listingId);
+    const reserverId = this.userId;
+
+    if (!reserverId) {
+      throw new Meteor.Error('not-authorized', 'You must be logged in to reserve an item.');
+    }
+
+    const listing = await Listings.findOneAsync(query);
+
+    if (!listing) {
+      throw new Meteor.Error('not-found', 'Listing not found.');
+    }
+
+    const ownerId = listing.sellerId || listing.userId || listing.ownerId;
+
+    if (ownerId && ownerId === reserverId) {
+      throw new Meteor.Error('not-allowed', 'You cannot reserve your own listing.');
+    }
+
+    const currentStatus = normalizeListingStatus(listing.status);
+
+    if (currentStatus !== 'Available') {
+      throw new Meteor.Error('not-available', `This item is currently ${currentStatus.toLowerCase()} and cannot be reserved.`);
+    }
+
+    await Listings.updateAsync(
+      { _id: listing._id },
+      {
+        $set: {
+          status: 'Reserved',
+          reservedBy: reserverId,
+          reservedAt: new Date(),
+          updatedAt: new Date()
+        }
+      }
+    );
+
+    return { success: true, message: 'Item reserved successfully. Coordinate with the seller to complete the purchase.' };
+  },
+
   async 'buyListing'(listingId) {
     check(listingId, Match.OneOf(String, Object));
 
@@ -653,10 +716,34 @@ async 'getReviews'() {
       throw new Meteor.Error('not-found', 'Listing not found.');
     }
 
+    const currentStatus = normalizeListingStatus(listing.status);
+
+    const isReservedByBuyer = currentStatus === 'Reserved' && listing?.reservedBy === buyerId;
+
+    if (currentStatus !== 'Available' && !isReservedByBuyer) {
+      throw new Meteor.Error('not-available', `This item is currently ${currentStatus.toLowerCase()} and cannot be purchased.`);
+    }
+
+    await Listings.updateAsync(
+      { _id: listing._id },
+      {
+        $set: {
+          status: 'Sold',
+          reservedBy: buyerId,
+          reservedAt: listing?.reservedAt || new Date(),
+          soldAt: new Date(),
+          updatedAt: new Date()
+        }
+      }
+    );
+
     await Purchases.insertAsync({
       buyerId,
       listingId: normalizedListingId,
-      listingSnapshot: listing,
+      listingSnapshot: {
+        ...listing,
+        status: 'Sold'
+      },
       createdAt: new Date()
     });
 
